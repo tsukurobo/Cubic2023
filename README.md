@@ -19,8 +19,13 @@
     - [Decoupling Condenser](#decoupling-condenser)
     - [Bridge](#bridge)
     - [pull up](#pull-up)
+    - [error lamp](#error-lamp)
+    - [PS](#ps)
     - [BD63150](#bd63150)
     - [Protection Circuit](#protection-circuit-1)
+    - [Indication Circuit](#indication-circuit-1)
+    - [VREF](#vref)
+    - [for solenoid valve](#for-solenoid-valve)
 - [Cubic2023\_RP2040](#cubic2023_rp2040)
   - [概要](#概要-2)
     - [RP2040](#rp2040)
@@ -48,9 +53,9 @@
 ## 概要
 RZ-735クラスのDCモータを2基、RS-555クラスのDCモータを1基、24Vで駆動することが出来る基板です。以下ではRZ-735を想定したチャネルをメインチャネル、他方をサブチャネルと呼称します。
 
-メインチャネルではICにA3921を採用しています。サブチャンネルではICにBD63150を採用しています。データシートを参考に作成しました。データシートに載っている内容は説明を省略します。
+メインチャネルではICにA3921を採用しています。サブチャネルではICにBD63150を採用しています。データシートを参考に作成しました。データシートに載っている内容は説明を省略します。
 
-サブチャンネルはハーフブリッジ×2と見なすことで電磁弁を制御することも出来ます。
+サブチャネルはハーフブリッジ×2と見なすことで電磁弁を制御することも出来ます。
 
 https://www.allegromicro.com/ja-jp/products/motor-drivers/brush-dc-motor-drivers/a3921
 
@@ -122,12 +127,26 @@ $$ Rg:ゲート抵抗,Vg:ゲート駆動電圧,Imax:ICがゲートに流せる�
 ### pull up
 MDへの入力信号をプルアップしています。
 
+### error lamp
+BD63150のエラー表示用のLEDです。
+
+### PS
+PowerSaveに繋いでる端子です。プルアップしています。
+
 ### BD63150
 電圧制御・電流制限に対応したモータードライバICです。RFNには100mΩのシャント抵抗を搭載しています。3Aで電流制限をする計算でしたが、想定より厳しめに作動していました。恐らくGNDを信号とパワーで分離した弊害だと思われます。
 
 ### Protection Circuit
- 
+メインチャネルと同様の構成です。
 
+### Indication Circuit
+メインチャネルと同様の構成です。
+
+### VREF
+電流の制限値をICに入力するピンです。3Aで制限するように設定したのですが、前述の通り思うように動きませんでした。
+
+### for solenoid valve
+電磁弁を駆動できるように付加した回路です。セーフティとしてリセッタブルヒューズを載せています。また還流ダイオードも載せています。
 
 # Cubic2023_RP2040
 ## 概要
