@@ -8,10 +8,14 @@
     - [encoder pull up](#encoder-pull-up)
     - [increment encoder cognition](#increment-encoder-cognition)
     - [inverter(NOT)](#inverternot)
-    - [decoupling capacitor](#decoupling-capacitor)
     - [increment RP2040](#increment-rp2040)
     - [increment connecter](#increment-connecter)
     - [absolute encoder cognition](#absolute-encoder-cognition)
+    - [absolute RP2040](#absolute-rp2040)
+    - [absolute connector](#absolute-connector)
+    - [decoupling capacitor](#decoupling-capacitor)
+    - [Arduino nano 33 BLE](#arduino-nano-33-ble)
+    - [to MotherBoard](#to-motherboard)
 - [Cubic2023\_DCMotorDriver](#cubic2023_dcmotordriver)
   - [概要](#概要-2)
     - [connector](#connector)
@@ -78,19 +82,35 @@
 ### inverter(NOT)
 インクリメントエンコーダの波形を整形するインバータ（バッファ）です。NOT回路と等価なので信号が反転します。A相B相は反転しても大きな影響はないですが、Z相はhighの時間が長くなります。長い信号線を介してセンシングするためチャタリング防止などの観点から挿入しました。また、5VトレラントのICを介することで5V信号を3.3Vで駆動するRP2040に入力できるようにしています。
 
-### decoupling capacitor
-基板上のICなどのバイパスコンデンサです。配線を引き延ばすためエンコーダの電源近くにも配置しました。
-
 ### increment RP2040
-インクリメントエンコーダを読み取り値を記録、メインマイコンの要求に応じて状態を変えすためのマイコンです。インクリメントエンコーダの読み取りは割り込み処理を必要とするため、メインマイコンと分離したいと考え、この設計にしました。
+インクリメントエンコーダを読み取り値を記録、メインマイコンの要求に応じて状態を返すためのマイコンです。インクリメントエンコーダの読み取りは割り込み処理を必要とするため、メインマイコンと分離したいと考え、この設計にしました。
 
 ### increment connecter
-ラッチ付かつサイズが小さいコネクタが望ましかったため、PAコネクタを採用しました。AMT102/103を接続することを想定して、ピンの順番を設定しています。
+ラッチ付かつサイズが小さいコネクタが望ましかったため、PAコネクタを採用しました。**AMT102/103**を接続することを想定して、ピンの順番を設定しています。
 
 ### absolute encoder cognition
-アブソリュートエンコーダとのSPI通信が確立した場合にRP2040がGPIOを操作する
+アブソリュートエンコーダとのSPI通信が確立した場合にRP2040がGPIOを操作しLEDを点灯させることが出来るようにしました。
 
+### absolute RP2040
+アブソリュートエンコーダと通信をして値を記録、メインマイコンの要求に応じて状態を返すためのマイコンです。メインマイコンをmasterとしたSPIバスとは別に、absolute RP2040をmasterとしたエンコーダとの通信用のSPIバスを用意しています。
 
+### absolute connector
+こちらもPAコネクタを採用しています。**AMT223**を接続することを想定して、ピンの順番を設定しています。
+
+### decoupling capacitor
+基板上のICなどのバイパスコンデンサです。配線を引き延ばすためエンコーダのコネクタ近くにも配置しました。
+
+### Arduino nano 33 BLE
+メインマイコンです。enableをHIGHにすることでシステムを起動することができます。RESETをLOWにすることでエンコーダ用のRP2040をリセットさせることできます。他はSPI通信用のGPIOです。
+
+### to MotherBoard
+電源、SPI通信、シャットダウン信号を共有しています。
+
+### emergency shutdown
+緊急停止スイッチ接続することでシステムを起動できます。LEDにより起動状態を表示しています。
+
+### 3-state buffer
+SPI通信のslave側は通信していないときはMISOをオープンにする仕様ですが、RP2040はLOWを出力してしまい、複数slave運用がデフォルトで不可能であったため、3-state bufferを付加することで対策しました。
 
 # Cubic2023_DCMotorDriver
 ## 概要
