@@ -3,8 +3,17 @@
 - [Cubic2023](#cubic2023)
   - [概要](#概要)
     - [コメント](#コメント)
-- [Cubic2023\_DCMotorDriver](#cubic2023_dcmotordriver)
+- [Cubic2023\_Shield](#cubic2023_shield)
   - [概要](#概要-1)
+    - [encoder pull up](#encoder-pull-up)
+    - [increment encoder cognition](#increment-encoder-cognition)
+    - [inverter(NOT)](#inverternot)
+    - [decoupling capacitor](#decoupling-capacitor)
+    - [increment RP2040](#increment-rp2040)
+    - [increment connecter](#increment-connecter)
+    - [absolute encoder cognition](#absolute-encoder-cognition)
+- [Cubic2023\_DCMotorDriver](#cubic2023_dcmotordriver)
+  - [概要](#概要-2)
     - [connector](#connector)
     - [pull down](#pull-down)
     - [A3921](#a3921)
@@ -27,7 +36,7 @@
     - [VREF](#vref)
     - [for solenoid valve](#for-solenoid-valve)
 - [Cubic2023\_RP2040](#cubic2023_rp2040)
-  - [概要](#概要-2)
+  - [概要](#概要-3)
     - [RP2040](#rp2040)
     - [bypass condenser](#bypass-condenser)
     - [surge protection](#surge-protection)
@@ -48,6 +57,40 @@
 
 ### コメント
 修正中です。8/10程度を目途に進めています。
+
+# Cubic2023_Shield
+## 概要
+メインマイコンを搭載する基板です。メインマイコンには以下の理由からArduino nano 33 BLE(以下：AN33BLE)を採用しました。
+- 32bitマイコン
+- 浮動小数点演算ユニット搭載
+- 書き込み環境の構築が容易
+
+また、AN33BLEはIMUを搭載している点もメリットです。実際には用いていないため精度は不明ですが、基板面積という点では確実にプラスです。
+
+センサとしては、8つのインクリメンタルエンコーダと8つのアブソリュートエンコーダを接続できるように設計しました。
+
+### encoder pull up
+インクリメントエンコーダに接続しているA相B相Z相をプルアップしています。
+
+### increment encoder cognition
+インクリメントエンコーダは、Z相の多くの範囲でLOWを返すため、NOT回路によりHIGHになり、LEDが光る仕組みです。Z相をプルアップしてるため、未接続の場合LEDは光りません。A相B相が断線してる場合、LEDは光りますが正常に認識されるとは限りません。何番のエンコーダに接続してるか簡易的に確認するための機能です。
+
+### inverter(NOT)
+インクリメントエンコーダの波形を整形するインバータ（バッファ）です。NOT回路と等価なので信号が反転します。A相B相は反転しても大きな影響はないですが、Z相はhighの時間が長くなります。長い信号線を介してセンシングするためチャタリング防止などの観点から挿入しました。また、5VトレラントのICを介することで5V信号を3.3Vで駆動するRP2040に入力できるようにしています。
+
+### decoupling capacitor
+基板上のICなどのバイパスコンデンサです。配線を引き延ばすためエンコーダの電源近くにも配置しました。
+
+### increment RP2040
+インクリメントエンコーダを読み取り値を記録、メインマイコンの要求に応じて状態を変えすためのマイコンです。インクリメントエンコーダの読み取りは割り込み処理を必要とするため、メインマイコンと分離したいと考え、この設計にしました。
+
+### increment connecter
+ラッチ付かつサイズが小さいコネクタが望ましかったため、PAコネクタを採用しました。AMT102/103を接続することを想定して、ピンの順番を設定しています。
+
+### absolute encoder cognition
+アブソリュートエンコーダとのSPI通信が確立した場合にRP2040がGPIOを操作する
+
+
 
 # Cubic2023_DCMotorDriver
 ## 概要
